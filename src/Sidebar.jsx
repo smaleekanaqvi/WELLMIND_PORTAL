@@ -1,8 +1,8 @@
 import React from 'react';
-
+import heroImage from "./assets/hero.png";
 const Sidebar = ({ activeNav, onNavigate }) => {
   const navItems = [
-    { id: 'dashboard',       label: 'Admain Dashboard',        icon: 'dashboard' },
+    { id: 'dashboard',       label: 'Admin Dashboard',        icon: 'dashboard' },
     { id: 'HRDashboard',     label: 'Dashboard',        icon: 'hr' },
     { id: 'employees',       label: 'Employees',        icon: 'employees' },
     { id: 'interns',         label: 'Interns',          icon: 'employees' },
@@ -53,9 +53,7 @@ const Sidebar = ({ activeNav, onNavigate }) => {
     <aside className="sidebar">
       {/* Logo */}
       <div className="sidebar-logo">
-        <img
-          src="./hero.png"
-          alt="WellMind Data Solutions"
+      <img src={heroImage} alt="WellMind Data Solutions"
           style={{
             height: '40px', width: 'auto', objectFit: 'contain',
             backgroundColor: '#FFFFFF', padding: '4px', borderRadius: '4px',

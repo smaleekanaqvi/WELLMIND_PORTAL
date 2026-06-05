@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import Swal from 'sweetalert2';
 import { getAuth, signInWithPopup, GoogleAuthProvider } from 'firebase/auth';
-import { db } from "../firebase"; // Ensure your firebase configuration path is correct
+import { db } from "../firebase"; 
+import heroImage from '../assets/hero.png'; 
 
 const Login = ({ onNavigate }) => {
   const [emailOrId, setEmailOrId] = useState('');
@@ -122,9 +123,7 @@ const Login = ({ onNavigate }) => {
       <div style={styles.loginCard}>
         <div style={styles.headerSection}>
           <div style={styles.logoIcon}>
-            <img
-              src="./hero.png"
-              alt="WellMind Data Solutions"
+            <img src={heroImage} alt="WellMind Data Solutions"
               style={{ height: '40px', width: 'auto', objectFit: 'contain', backgroundColor: '#FFFFFF', padding: '4px', borderRadius: '4px' }}
             />
           </div>

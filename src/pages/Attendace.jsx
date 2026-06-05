@@ -7,23 +7,19 @@ import {
   CheckCircle, XCircle, AlertCircle, Search, ChevronLeft, ChevronRight, Edit2, X
 } from 'lucide-react';
 
-/* ══════════════════════════════════════════════════════════════
-   Professional Color Palette (Matches InternAttendance)
-════════════════════════════════════════════════════════════════════════════ */
 const COLORS = {
   primary: "#623068",
   primaryDark: "#331B3F",
   primaryLight: "#F3E8FF",
-  textMain: "#1E293B",     // Slate 800
-  textMuted: "#64748B",    // Slate 500
-  bgPage: "#F8FAFC",      // Slate 50 (Clean)
+  textMain: "#1E293B",
+  textMuted: "#64748B",
+  bgPage: "#F8FAFC",
   bgCard: "#FFFFFF",
   success: "#10B981",
   warning: "#F59E0B",
   danger: "#EF4444",
   teal: "#0D7289",
-  border: "#E2E8F0",       // Slate 200
-  
+  border: "#E2E8F0",
   status: {
     present: { bg: "#DCFCE7", text: "#166534", icon: "✅" },
     late:    { bg: "#FEF3C7", text: "#92400E", icon: "⏰" },
@@ -34,7 +30,6 @@ const COLORS = {
 };
 
 const todayId = new Date().toISOString().split("T")[0];
-
 const formatCurrentTime = () =>
   new Date().toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
 
@@ -54,24 +49,14 @@ const loadJsPDF = () =>
     document.head.appendChild(s);
   });
 
-/* ════════════════════════════════════════════════════════════════
-   Components
-════════════════════════════════════════════════════════════════════════════ */
 const Badge = ({ status }) => {
   const s = COLORS.status[status?.toLowerCase()] || COLORS.status.pending;
   return (
     <span style={{ 
-      padding: "4px 10px", 
-      borderRadius: 99, 
-      fontSize: 11, 
-      fontWeight: 700, 
-      textTransform: "uppercase",
-      letterSpacing: "0.05em",
-      background: s.bg, 
-      color: s.text, 
-      display: "inline-flex", 
-      alignItems: "center",
-      gap: 6
+      padding: "4px 10px", borderRadius: 99, fontSize: 11, fontWeight: 700,
+      textTransform: "uppercase", letterSpacing: "0.05em",
+      background: s.bg, color: s.text,
+      display: "inline-flex", alignItems: "center", gap: 6
     }}>
       {s.icon} {status}
     </span>
@@ -96,7 +81,7 @@ const hexToRgb = (hex) => {
   return result ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)] : [98, 48, 104];
 };
 
-/* TimeEditModal */
+/* ── TimeEditModal ── */
 const TimeEditModal = ({ emp, type, onSave, onClose }) => {
   const to24 = (t) => {
     if (!t || !t.includes(" ")) return "09:00";
@@ -112,11 +97,9 @@ const TimeEditModal = ({ emp, type, onSave, onClose }) => {
     const hr  = h % 12 || 12;
     return `${String(hr).padStart(2,"0")}:${String(m).padStart(2,"0")} ${mod}`;
   };
-
   const currentValue = type === 'checkin' ? emp.scheduledIn : (emp.scheduledOut || "05:00 PM");
   const [timeVal, setTimeVal] = useState(to24(currentValue));
   const [saving,  setSaving]  = useState(false);
-
   const handleSave = async () => {
     setSaving(true);
     const formatted = to12(timeVal);
@@ -125,18 +108,12 @@ const TimeEditModal = ({ emp, type, onSave, onClose }) => {
         await updateDoc(doc(db, "employees", emp.id), { checkInTime: formatted });
         onSave(emp.id, formatted, 'checkin');
       } else {
-        // FIX: correct updateDoc usage
         await updateDoc(doc(db, "employees", emp.id), { checkOutTime: formatted });
         onSave(emp.id, formatted, 'checkout');
       }
-    } catch (e) {
-      console.error("Time update error:", e);
-      alert("Failed to save.");
-    } finally {
-      setSaving(false);
-    }
+    } catch (e) { console.error("Time update error:", e); alert("Failed to save."); }
+    finally { setSaving(false); }
   };
-
   return (
     <div style={modalStyles.overlay} onClick={onClose}>
       <div style={modalStyles.box} onClick={e => e.stopPropagation()}>
@@ -155,7 +132,7 @@ const TimeEditModal = ({ emp, type, onSave, onClose }) => {
         </div>
         <div style={modalStyles.footer}>
           <button onClick={onClose} style={modalStyles.btnSecondary}>Cancel</button>
-          <button onClick={handleSave} disabled={saving} style={{...modalStyles.btnPrimary, opacity: saving ? 0.7 : 1 }}>
+          <button onClick={handleSave} disabled={saving} style={{...modalStyles.btnPrimary, opacity: saving ? 0.7 : 1}}>
             {saving ? "Saving..." : "Save Changes"}
           </button>
         </div>
@@ -165,8 +142,8 @@ const TimeEditModal = ({ emp, type, onSave, onClose }) => {
 };
 
 const modalStyles = {
-  overlay: { position: "fixed", inset: 0, background: "rgba(15, 23, 42, 0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(4px)" },
-  box: { background: "#fff", borderRadius: 16, width: 400, maxWidth: "90%", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)", border: `1px solid ${COLORS.border}`, overflow: "hidden", animation: "fadeIn 0.2s ease-out" },
+  overlay: { position: "fixed", inset: 0, background: "rgba(15,23,42,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000, backdropFilter: "blur(4px)" },
+  box: { background: "#fff", borderRadius: 16, width: 400, maxWidth: "90%", boxShadow: "0 20px 25px -5px rgba(0,0,0,0.1)", border: `1px solid ${COLORS.border}`, overflow: "hidden", animation: "fadeIn 0.2s ease-out" },
   header: { background: COLORS.bgPage, padding: "20px", borderBottom: `1px solid ${COLORS.border}`, display: "flex", alignItems: "center", gap: 12 },
   avatar: { width: 40, height: 40, borderRadius: "50%", background: COLORS.primary, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 16 },
   name: { color: COLORS.textMain, fontWeight: 600, fontSize: 16 },
@@ -181,9 +158,39 @@ const modalStyles = {
   btnPrimary: { padding: "8px 16px", borderRadius: 6, border: "none", background: COLORS.primary, color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer" }
 };
 
-/* ═════════════════════════════════════════════════════════════════════════════════════════════════════ */
+/* ── Mark Attendance Cell (P / L / A labels above checkboxes) ── */
+const MarkCell = ({ record, onMark }) => {
+  const checks = [
+    { label: "P", title: "Present", type: "Present", color: COLORS.status.present.text, bg: COLORS.status.present.bg, checked: record.status === "Present" || record.status === "Late" },
+    { label: "L", title: "Leave",   type: "Leave",   color: COLORS.status.leave.text,   bg: COLORS.status.leave.bg,   checked: record.status === "Leave" },
+    { label: "A", title: "Absent",  type: "Absent",  color: COLORS.status.absent.text,  bg: COLORS.status.absent.bg,  checked: record.status === "Absent" },
+  ];
+  return (
+    <div style={{ display: "flex", gap: 12, justifyContent: "center", alignItems: "flex-end" }}>
+      {checks.map(c => (
+        <div key={c.label} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+          <span style={{
+            fontSize: 10, fontWeight: 800, color: c.checked ? c.color : COLORS.textMuted,
+            letterSpacing: "0.04em", lineHeight: 1,
+            background: c.checked ? c.bg : "transparent",
+            padding: "2px 5px", borderRadius: 4,
+            transition: "all 0.2s"
+          }}>{c.label}</span>
+          <input
+            type="checkbox"
+            checked={c.checked}
+            onChange={() => onMark(record.id, record.scheduledIn, c.type)}
+            style={{ accentColor: c.color, width: 16, height: 16, cursor: "pointer" }}
+            title={c.title}
+          />
+        </div>
+      ))}
+    </div>
+  );
+};
+
+/* ════════════════════════════════════════════════════════════════ */
 const Attendance = ({ onNavigate }) => {
-  // State
   const [records, setRecords]           = useState([]);
   const [monthlyStats, setMonthlyStats] = useState({});
   const [dailyDetails, setDailyDetails] = useState({});
@@ -197,18 +204,16 @@ const Attendance = ({ onNavigate }) => {
   const [editingEmp, setEditingEmp]     = useState(null);
   const [editType, setEditType]         = useState('checkin');
   const [selectedDate, setSelectedDate] = useState(todayId);
-  
-  // Responsive State (SSR Safe)
+
   const [isMobile, setIsMobile] = useState(() => {
     if (typeof window !== 'undefined') return window.innerWidth < 768;
     return false;
   });
-  
+
   const isToday = selectedDate === todayId;
   const baseRecordsRef = useRef([]);
   const recordsRef     = useRef([]);
 
-  // Responsive Listener
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -216,16 +221,13 @@ const Attendance = ({ onNavigate }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Refs
   useEffect(() => { recordsRef.current = records; }, [records]);
 
-  // Clock tick
   useEffect(() => {
     const t = setInterval(() => setCurrentTime(formatCurrentTime()), 1000);
     return () => clearInterval(t);
   }, []);
 
-  // Load employees data once
   useEffect(() => {
     const init = async () => {
       try {
@@ -233,17 +235,13 @@ const Attendance = ({ onNavigate }) => {
         const uniqueEmployees = new Map();
         snap.docs.forEach(d => {
           const data = d.data();
-          if (!uniqueEmployees.has(data.name)) {
-            uniqueEmployees.set(data.name, { id: d.id, ...data });
-          }
+          if (!uniqueEmployees.has(data.name)) uniqueEmployees.set(data.name, { id: d.id, ...data });
         });
         const base = Array.from(uniqueEmployees.values()).map(emp => ({
-          id: emp.id,
-          ...emp,
+          id: emp.id, ...emp,
           scheduledIn: emp.checkInTime || "09:00 AM",
           scheduledOut: emp.checkOutTime || "05:00 PM",
-          status: "Pending",
-          checkIn: null,
+          status: "Pending", checkIn: null,
         }));
         baseRecordsRef.current = base;
         setRecords(base);
@@ -254,20 +252,16 @@ const Attendance = ({ onNavigate }) => {
     init();
   }, []);
 
-  // Listen to attendance subcollection for selected date
   useEffect(() => {
     if (baseRecordsRef.current.length === 0) return;
     const fresh = baseRecordsRef.current.map(r => ({ ...r, status: "Pending", checkIn: null }));
     setRecords(fresh);
     recordsRef.current = fresh;
-    const unsub = onSnapshot(
-      collection(db, "attendance", selectedDate, "records"),
-      (s) => {
-        const updates = {};
-        s.forEach(d => { updates[d.id] = d.data(); });
-        setRecords(prev => prev.map(r => updates[r.id] ? { ...r, ...updates[r.id] } : r));
-      }
-    );
+    const unsub = onSnapshot(collection(db, "attendance", selectedDate, "records"), (s) => {
+      const updates = {};
+      s.forEach(d => { updates[d.id] = d.data(); });
+      setRecords(prev => prev.map(r => updates[r.id] ? { ...r, ...updates[r.id] } : r));
+    });
     return () => unsub();
   }, [selectedDate]);
 
@@ -285,10 +279,9 @@ const Attendance = ({ onNavigate }) => {
       if (parseMin(nowStr) > parseMin(empScheduledIn) + 5) finalStatus = "Late";
     }
     const payload = {
-      status:    finalStatus,
-      checkIn:   (finalStatus === "Present" || finalStatus === "Late") ? nowStr : "—",
-      timestamp: new Date(),
-      dateId:    selectedDate,
+      status: finalStatus,
+      checkIn: (finalStatus === "Present" || finalStatus === "Late") ? nowStr : "—",
+      timestamp: new Date(), dateId: selectedDate,
     };
     try {
       await setDoc(doc(db, "attendance", selectedDate, "records", empId), payload, { merge: true });
@@ -298,8 +291,8 @@ const Attendance = ({ onNavigate }) => {
 
   const handleTimeSaved = useCallback((empId, newTime, type) => {
     setRecords(prev => prev.map(r =>
-      r.id === empId 
-        ? { ...r, [type === 'checkin' ? 'scheduledIn' : 'scheduledOut']: newTime, [type === 'checkin' ? 'checkInTime' : 'checkOutTime']: newTime } 
+      r.id === empId
+        ? { ...r, [type === 'checkin' ? 'scheduledIn' : 'scheduledOut']: newTime, [type === 'checkin' ? 'checkInTime' : 'checkOutTime']: newTime }
         : r
     ));
     setEditingEmp(null);
@@ -309,9 +302,8 @@ const Attendance = ({ onNavigate }) => {
     const [year, month] = yearMonth.split('-').map(Number);
     const daysInMonth = new Date(year, month, 0).getDate();
     const dates = [];
-    for (let d = 1; d <= daysInMonth; d++) {
+    for (let d = 1; d <= daysInMonth; d++)
       dates.push(`${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`);
-    }
     return dates;
   };
 
@@ -372,7 +364,6 @@ const Attendance = ({ onNavigate }) => {
   };
 
   const monthDisplayLabel = new Date(reportMonth + "-01").toLocaleString('default', { month:'long', year:'numeric' });
-  const isCurrentMonth    = reportMonth >= new Date().toISOString().slice(0,7);
 
   const downloadMonthlyPDF = async () => {
     setDownloading(true);
@@ -383,14 +374,17 @@ const Attendance = ({ onNavigate }) => {
       const pw  = pdf.internal.pageSize.getWidth();
       const primaryRgb = hexToRgb(COLORS.primary);
       const primaryDarkRgb = hexToRgb(COLORS.primaryDark);
-      pdf.setFillColor(primaryRgb[0], primaryRgb[1], primaryRgb[2]); 
-      pdf.rect(0,0,pw,70,'F');
+      pdf.setFillColor(...primaryRgb); pdf.rect(0,0,pw,70,'F');
       pdf.setFont('helvetica','bold'); pdf.setFontSize(22); pdf.setTextColor(255,255,255);
       pdf.text('Monthly Attendance Report', pw/2, 30, {align:'center'});
       pdf.setFontSize(13); pdf.text(monthDisplayLabel, pw/2, 52, {align:'center'});
       pdf.setFontSize(9); pdf.setTextColor(150,120,100);
       pdf.text(`Generated: ${new Date().toLocaleString()}`, 40, 88);
-      const totals = recordsRef.current.reduce((acc,r)=>{ const s=stats[r.id]||{present:0,late:0,absent:0,leave:0}; acc.present+=s.present;acc.late+=s.late;acc.absent+=s.absent;acc.leave+=s.leave; return acc; },{present:0,late:0,absent:0,leave:0});
+      const totals = recordsRef.current.reduce((acc,r)=>{
+        const s=stats[r.id]||{present:0,late:0,absent:0,leave:0};
+        acc.present+=s.present;acc.late+=s.late;acc.absent+=s.absent;acc.leave+=s.leave;
+        return acc;
+      },{present:0,late:0,absent:0,leave:0});
       pdf.autoTable({
         startY:105,
         head:[['#','Employee Name','Role','Present','Late','Absent','Leave','Total Days']],
@@ -425,8 +419,7 @@ const Attendance = ({ onNavigate }) => {
       const pw  = pdf.internal.pageSize.getWidth();
       const primaryRgb = hexToRgb(COLORS.primary);
       const primaryDarkRgb = hexToRgb(COLORS.primaryDark);
-      pdf.setFillColor(primaryRgb[0], primaryRgb[1], primaryRgb[2]); 
-      pdf.rect(0,0,pw,80,'F');
+      pdf.setFillColor(...primaryRgb); pdf.rect(0,0,pw,80,'F');
       pdf.setFont('helvetica','bold'); pdf.setFontSize(18); pdf.setTextColor(255,255,255);
       pdf.text(selectedEmp.name||'—',40,35);
       pdf.setFontSize(11); pdf.text(`${selectedEmp.role||'—'}  ·  ${monthDisplayLabel}`,40,55);
@@ -434,20 +427,15 @@ const Attendance = ({ onNavigate }) => {
       const barY=100;
       pdf.setFillColor(241,235,225); pdf.roundedRect(40,barY,pw-80,36,6,6,'F');
       pdf.setFont('helvetica','bold'); pdf.setFontSize(11); pdf.setTextColor(45,27,56); pdf.text('Attendance Rate',56,barY+14);
-      pdf.setFontSize(13); pdf.setTextColor(primaryRgb[0], primaryRgb[1], primaryRgb[2]); pdf.text(`${rate}%`,pw-56,barY+14,{align:'right'});
+      pdf.setFontSize(13); pdf.setTextColor(...primaryRgb); pdf.text(`${rate}%`,pw-56,barY+14,{align:'right'});
       pdf.setFillColor(220,210,200); pdf.roundedRect(56,barY+20,pw-112,8,4,4,'F');
-      pdf.setFillColor(primaryRgb[0], primaryRgb[1], primaryRgb[2]); pdf.roundedRect(56,barY+20,Math.max(8,(rate/100)*(pw-112)),8,4,4,'F');
+      pdf.setFillColor(...primaryRgb); pdf.roundedRect(56,barY+20,Math.max(8,(rate/100)*(pw-112)),8,4,4,'F');
       const cY=152,cW=(pw-80-30)/4,cH=58,gap=10;
-      const successRgb = hexToRgb(COLORS.success);
-      const warningRgb = hexToRgb(COLORS.warning);
-      const dangerRgb = hexToRgb(COLORS.danger);
-      const primaryColorRgb = hexToRgb(COLORS.primary);
-      
       const cards = [
-        {label:'Present',value:empStats.present,bg:[220,252,231],fg:successRgb},
-        {label:'Late',   value:empStats.late,   bg:[254,243,199],fg:warningRgb},
-        {label:'Absent', value:empStats.absent,bg:[254,226,226],fg:dangerRgb},
-        {label:'Leave',  value:empStats.leave,  bg:[237,230,240],fg:primaryColorRgb}
+        {label:'Present',value:empStats.present,bg:[220,252,231],fg:hexToRgb(COLORS.success)},
+        {label:'Late',   value:empStats.late,   bg:[254,243,199],fg:hexToRgb(COLORS.warning)},
+        {label:'Absent', value:empStats.absent, bg:[254,226,226],fg:hexToRgb(COLORS.danger)},
+        {label:'Leave',  value:empStats.leave,  bg:[237,230,240],fg:hexToRgb(COLORS.primary)}
       ];
       cards.forEach((c,i)=>{
         const x=40+i*(cW+gap);
@@ -457,7 +445,6 @@ const Attendance = ({ onNavigate }) => {
         pdf.setFontSize(9); pdf.setFont('helvetica','normal'); pdf.setTextColor(100,116,139);
         pdf.text(c.label, x+cW/2, cY+44, {align:'center'});
       });
-      
       pdf.autoTable({
         startY:cY+cH+20,
         head:[['#','Date','Day','Check In','Status']],
@@ -468,7 +455,6 @@ const Attendance = ({ onNavigate }) => {
         bodyStyles:{fontSize:11,halign:'center'},
         columnStyles:{0:{cellWidth:30},1:{halign:'left',cellWidth:110},2:{halign:'left',cellWidth:110},3:{cellWidth:80},4:{cellWidth:80}},
         alternateRowStyles:{fillColor:[247,245,255]},
-        didParseCell(data){ if(data.section==='body'&&data.column.index===4){ const s=data.cell.raw; if(s==='Present'){data.cell.styles.textColor=successRgb;data.cell.styles.fontStyle='bold';} if(s==='Late'){data.cell.styles.textColor=warningRgb;data.cell.styles.fontStyle='bold';} if(s==='Absent'){data.cell.styles.textColor=dangerRgb;data.cell.styles.fontStyle='bold';} if(s==='Leave'){data.cell.styles.textColor=primaryColorRgb;data.cell.styles.fontStyle='bold';} } },
         footStyles:{fillColor:primaryDarkRgb,textColor:[255,255,255],fontStyle:'bold',fontSize:10,halign:'center'},
         showFoot:'lastPage',margin:{left:40,right:40},
       });
@@ -478,7 +464,19 @@ const Attendance = ({ onNavigate }) => {
     finally { setPersonDl(false); }
   };
 
-  /* PersonDetail Component */
+  /* ── local styles ── */
+  const stylesLocal = {
+    card: { background: COLORS.bgCard, borderRadius: 12, border: `1px solid ${COLORS.border}`, boxShadow: "0 1px 3px rgba(0,0,0,0.05)", overflow: "hidden" },
+    th:   { padding: "12px 16px", fontSize: 11, fontWeight: 700, color: COLORS.textMuted, textAlign: "center", textTransform: "uppercase", letterSpacing: "0.05em", borderBottom: `1px solid ${COLORS.border}` },
+    td:   { padding: "14px 16px", fontSize: 13, color: COLORS.textMain, borderBottom: `1px solid ${COLORS.border}` },
+    btnPrimary:   { padding: "8px 16px", borderRadius: 6, border: "none", background: COLORS.primary, color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6 },
+    btnSecondary: { padding: "8px 16px", borderRadius: 6, border: `1px solid ${COLORS.border}`, background: "#fff", color: COLORS.textMain, fontSize: 13, fontWeight: 600, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6 },
+    btnSmall:     { padding: "4px 8px", borderRadius: 4, border: "none", background: COLORS.primary, color: "#fff", fontSize: 11, fontWeight: 600, cursor: "pointer" },
+    iconBtn:      { background: "transparent", border: `1px solid ${COLORS.border}`, borderRadius: 4, padding: "4px 8px", fontSize: 11, fontWeight: 600, color: COLORS.primary, cursor: "pointer", margin: "0 2px" },
+    iconBtnAction:{ background: "transparent", border: `1px solid ${COLORS.primary}`, borderRadius: 4, padding: "4px 12px", fontSize: 12, fontWeight: 600, color: COLORS.primary, cursor: "pointer" },
+  };
+
+  /* ── PersonDetail ── */
   const PersonDetail = () => {
     if (!selectedEmp) return null;
     const empDays  = dailyDetails[selectedEmp.id]||{};
@@ -486,24 +484,17 @@ const Attendance = ({ onNavigate }) => {
     const total    = empStats.present + empStats.late + empStats.absent + empStats.leave;
     const rate     = total > 0 ? Math.round(((empStats.present + empStats.late) / total) * 100) : 0;
     const ml       = new Date().toLocaleString("default",{month:"long",year:"numeric"});
-    const daysList = Object.entries(empDays)
-      .sort(([a],[b])=>a.localeCompare(b))
-      .map(([ds,data])=>({
-        dateStr:ds,
-        dayName:   new Date(ds).toLocaleDateString("en-US",{weekday:"short"}),
-        dateLabel: new Date(ds).toLocaleDateString("en-US",{day:"2-digit",month:"short"}),
-        ...data,
-      }));
+    const daysList = Object.entries(empDays).sort(([a],[b])=>a.localeCompare(b)).map(([ds,data])=>({
+      dateStr:ds, dayName:new Date(ds).toLocaleDateString("en-US",{weekday:"short"}),
+      dateLabel:new Date(ds).toLocaleDateString("en-US",{day:"2-digit",month:"short"}), ...data,
+    }));
     return (
       <div style={{ animation: "fadeIn 0.3s ease", width: "100%" }}>
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:24,flexWrap:"wrap",gap:16}}>
           <div style={{display:"flex",alignItems:"center",gap:16}}>
-            <button onClick={()=>setView("monthly")} style={stylesLocal.btnSecondary}><ChevronLeft size={16} /> Back</button>
+            <button onClick={()=>setView("monthly")} style={stylesLocal.btnSecondary}><ChevronLeft size={16}/> Back</button>
             <div style={{display:"flex",alignItems:"center",gap:14}}>
-              <div style={{
-                width: 48, height: 48, borderRadius: "50%", background: COLORS.primaryLight, color: COLORS.primary,
-                display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 20
-              }}>
+              <div style={{width:48,height:48,borderRadius:"50%",background:COLORS.primaryLight,color:COLORS.primary,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,fontSize:20}}>
                 {(selectedEmp.name||"?")[0].toUpperCase()}
               </div>
               <div>
@@ -513,49 +504,31 @@ const Attendance = ({ onNavigate }) => {
             </div>
           </div>
           <button onClick={downloadPersonPDF} disabled={personDl} style={stylesLocal.btnPrimary}>
-            <Download size={16} /> {personDl ? "..." : "Export PDF"}
+            <Download size={16}/> {personDl ? "..." : "Export PDF"}
           </button>
         </div>
-
-        {/* Stats Grid */}
-        <div style={{
-          background: "linear-gradient(135deg, #fff, #fcfcfc)",
-          borderRadius: 12,
-          padding: 24,
-          marginBottom: 24,
-          boxShadow: stylesLocal.card.boxShadow,
-          border: `1px solid ${COLORS.border}`
-        }}>
+        <div style={{background:"linear-gradient(135deg,#fff,#fcfcfc)",borderRadius:12,padding:24,marginBottom:24,boxShadow:stylesLocal.card.boxShadow,border:`1px solid ${COLORS.border}`}}>
           <div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}>
             <span style={{fontWeight:700,color:COLORS.textMain,fontSize:15}}>Attendance Rate</span>
             <span style={{fontWeight:900,fontSize:24,color:COLORS.primary}}>{rate}%</span>
           </div>
           <div style={{background:COLORS.bgPage,borderRadius:99,height:10,overflow:"hidden"}}>
-            <div style={{width:`${rate}%`,height:"100%",background:`linear-gradient(90deg, ${COLORS.primary}, ${COLORS.teal})`}}/>
+            <div style={{width:`${rate}%`,height:"100%",background:`linear-gradient(90deg,${COLORS.primary},${COLORS.teal})`}}/>
           </div>
         </div>
-
-        <div style={{display:"grid",gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(4, 1fr)",gap:16,marginBottom:24}}>
+        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"repeat(4,1fr)",gap:16,marginBottom:24}}>
           {[
             {label:"Present",value:empStats.present,color:COLORS.status.present.text},
             {label:"Late",   value:empStats.late,   color:COLORS.status.late.text},
             {label:"Absent", value:empStats.absent, color:COLORS.status.absent.text},
             {label:"Leave",  value:empStats.leave,  color:COLORS.status.leave.text},
           ].map(c=>(
-            <div key={c.label} style={{
-              background: "#fff",
-              padding: 20,
-              borderRadius: 12,
-              border: `1px solid ${COLORS.border}`,
-              boxShadow: stylesLocal.card.boxShadow,
-              textAlign: "center"
-            }}>
+            <div key={c.label} style={{background:"#fff",padding:20,borderRadius:12,border:`1px solid ${COLORS.border}`,boxShadow:stylesLocal.card.boxShadow,textAlign:"center"}}>
               <div style={{fontSize:32,fontWeight:900,color:c.color,lineHeight:1.2}}>{c.value}</div>
-              <div style={{fontSize:12,fontWeight:600,color:COLORS.textMuted,marginTop:4, textTransform: "uppercase"}}>{c.label}</div>
+              <div style={{fontSize:12,fontWeight:600,color:COLORS.textMuted,marginTop:4,textTransform:"uppercase"}}>{c.label}</div>
             </div>
           ))}
         </div>
-
         <div style={{background:"#fff",borderRadius:12,boxShadow:stylesLocal.card.boxShadow,border:`1px solid ${COLORS.border}`,overflow:"hidden"}}>
           <div style={{padding:16,borderBottom:`1px solid ${COLORS.border}`,display:"flex",justifyContent:"space-between",alignItems:"center",background:COLORS.bgPage}}>
             <h3 style={{margin:0,color:COLORS.textMain,fontSize:15,fontWeight:700}}>History</h3>
@@ -590,94 +563,8 @@ const Attendance = ({ onNavigate }) => {
     );
   };
 
-  // local styles for use inside component
-  const stylesLocal = {
-    card: {
-      background: COLORS.bgCard,
-      borderRadius: 12,
-      border: `1px solid ${COLORS.border}`,
-      boxShadow: "0 1px 3px rgba(0,0,0,0.05), 0 1px 2px rgba(0,0,0,0.1)",
-      overflow: "hidden"
-    },
-    th: {
-      padding: "12px 16px",
-      fontSize: 11,
-      fontWeight: 700,
-      color: COLORS.textMuted,
-      textAlign: "center",
-      textTransform: "uppercase",
-      letterSpacing: "0.05em",
-      borderBottom: `1px solid ${COLORS.border}`
-    },
-    td: {
-      padding: "14px 16px",
-      fontSize: 13,
-      color: COLORS.textMain,
-      borderBottom: `1px solid ${COLORS.border}`
-    },
-    btnPrimary: {
-      padding: "8px 16px",
-      borderRadius: 6,
-      border: "none",
-      background: COLORS.primary,
-      color: "#fff",
-      fontSize: 13,
-      fontWeight: 600,
-      cursor: "pointer",
-      display: "inline-flex",
-      alignItems: "center",
-      gap: 6,
-      transition: "all 0.2s"
-    },
-    btnSecondary: {
-      padding: "8px 16px",
-      borderRadius: 6,
-      border: `1px solid ${COLORS.border}`,
-      background: "#fff",
-      color: COLORS.textMain,
-      fontSize: 13,
-      fontWeight: 600,
-      cursor: "pointer",
-      display: "inline-flex",
-      alignItems: "center",
-      gap: 6,
-      transition: "all 0.2s"
-    },
-    btnSmall: {
-      padding: "4px 8px",
-      borderRadius: 4,
-      border: "none",
-      background: COLORS.primary,
-      color: "#fff",
-      fontSize: 11,
-      fontWeight: 600,
-      cursor: "pointer"
-    },
-    iconBtn: {
-      background: "transparent",
-      border: `1px solid ${COLORS.border}`,
-      borderRadius: 4,
-      padding: "4px 8px",
-      fontSize: 11,
-      fontWeight: 600,
-      color: COLORS.primary,
-      cursor: "pointer",
-      margin: "0 2px"
-    },
-    iconBtnAction: {
-      background: "transparent",
-      border: `1px solid ${COLORS.primary}`,
-      borderRadius: 4,
-      padding: "4px 12px",
-      fontSize: 12,
-      fontWeight: 600,
-      color: COLORS.primary,
-      cursor: "pointer"
-    }
-  };
-
   if (loading) return (
-    <div style={{display:"flex", minHeight:"100vh", background:COLORS.bgPage}}>
+    <div style={{display:"flex",minHeight:"100vh",background:COLORS.bgPage}}>
       {!isMobile && <Sidebar onNavigate={onNavigate}/>}
       <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center"}}>
         <div style={{width:40,height:40,border:`4px solid ${COLORS.primaryLight}`,borderTop:`4px solid ${COLORS.primary}`,borderRadius:"50%",animation:"spin 1s linear infinite"}}></div>
@@ -686,114 +573,95 @@ const Attendance = ({ onNavigate }) => {
   );
 
   const selectedDateLabel = new Date(selectedDate + "T00:00:00").toLocaleDateString("en-US", {
-    weekday: "short", day: "2-digit", month: "short", year: "numeric",
+    weekday:"short", day:"2-digit", month:"short", year:"numeric",
   });
 
   return (
-    <div style={{display:"flex", minHeight:"100vh", background:COLORS.bgPage, fontFamily:"'Inter', sans-serif", color:COLORS.textMain}}>
-      {/* Sidebar */}
+    <div style={{display:"flex",minHeight:"100vh",background:COLORS.bgPage,fontFamily:"'Inter',sans-serif",color:COLORS.textMain}}>
       {!isMobile && (
         <div style={{width:"260px",flexShrink:0,height:"100vh",background:COLORS.primaryDark,position:"sticky",top:0}}>
           <Sidebar onNavigate={onNavigate}/>
         </div>
       )}
-
-      {/* Main Content Area */}
       <div style={{flex:1,display:"flex",flexDirection:"column",height:"100vh",overflow:"hidden"}}>
-        <div style={{flex:1,overflowY:"auto",padding: isMobile ? "16px" : "28px 32px"}}>
+        <div style={{flex:1,overflowY:"auto",padding:isMobile?"16px":"28px 32px"}}>
 
           {/* Header */}
           <div style={{marginBottom:32}}>
-            <h1 style={{
-              fontSize: isMobile ? 24 : 28,
-              fontWeight: 800,
-              color: COLORS.textMain,
-              margin: "0 0 8px 0",
-              letterSpacing: "-0.02em"
-            }}>
+            <h1 style={{fontSize:isMobile?24:28,fontWeight:800,color:COLORS.textMain,margin:"0 0 8px 0",letterSpacing:"-0.02em"}}>
               📋 Daily Attendance
             </h1>
             <div style={{display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
-              <p style={{ fontSize: 15, color: COLORS.textMuted, fontWeight: 500, margin: 0 }}>
-                Manage team attendance and records
-              </p>
-              <div style={{
-                display:"inline-flex",alignItems:"center",gap:6,padding:"4px 12px",
-                background: "#fff",border:`1px solid ${COLORS.border}`,borderRadius:20,fontSize:12,fontWeight:600,color:COLORS.primary
-              }}>
-                <Calendar size={14} /> {new Date().toDateString()}
+              <p style={{fontSize:15,color:COLORS.textMuted,fontWeight:500,margin:0}}>Manage team attendance and records</p>
+              <div style={{display:"inline-flex",alignItems:"center",gap:6,padding:"4px 12px",background:"#fff",border:`1px solid ${COLORS.border}`,borderRadius:20,fontSize:12,fontWeight:600,color:COLORS.primary}}>
+                <Calendar size={14}/> {new Date().toDateString()}
               </div>
             </div>
           </div>
 
-          {/* Controls Bar */}
-          <div style={{
-            background: "#fff",
-            padding: 16,
-            borderRadius: 12,
-            marginBottom: 24,
-            border: `1px solid ${COLORS.border}`,
-            boxShadow: stylesLocal.card.boxShadow,
-            display: "flex",
-            flexDirection: isMobile ? "column" : "row",
-            justifyContent: "space-between",
-            alignItems: isMobile ? "flex-start" : "center",
-            gap: 16
-          }}>
+          {/* Controls */}
+          <div style={{background:"#fff",padding:16,borderRadius:12,marginBottom:24,border:`1px solid ${COLORS.border}`,boxShadow:stylesLocal.card.boxShadow,display:"flex",flexDirection:isMobile?"column":"row",justifyContent:"space-between",alignItems:isMobile?"flex-start":"center",gap:16}}>
             <div style={{display:"flex",alignItems:"center",gap:12,flexWrap:"wrap"}}>
               <h2 style={{margin:0,fontSize:18,fontWeight:700,color:COLORS.textMain}}>
-                {view==="daily" ? "Employee List" : view==="monthly" ? "Monthly Report" : `${selectedEmp?.name}`}
+                {view==="daily"?"Employee List":view==="monthly"?"Monthly Report":`${selectedEmp?.name}`}
               </h2>
-              {view === "daily" && (
+              {view==="daily" && (
                 <div style={{display:"flex",alignItems:"center",gap:8,background:COLORS.bgPage,border:`1px solid ${COLORS.border}`,borderRadius:8,padding:4}}>
-                  <Calendar size={14} color={COLORS.textMuted} style={{marginLeft:8}} />
-                  <input type="date" value={selectedDate} max={todayId} onChange={e => setSelectedDate(e.target.value)} style={{border:"none",background:"transparent",fontSize:13,fontWeight:600,color:COLORS.textMain,cursor:"pointer",outline:"none"}} />
-                  {!isToday && <button onClick={() => setSelectedDate(todayId)} style={stylesLocal.btnSmall}>Today</button>}
+                  <Calendar size={14} color={COLORS.textMuted} style={{marginLeft:8}}/>
+                  <input type="date" value={selectedDate} max={todayId} onChange={e=>setSelectedDate(e.target.value)} style={{border:"none",background:"transparent",fontSize:13,fontWeight:600,color:COLORS.textMain,cursor:"pointer",outline:"none"}}/>
+                  {!isToday && <button onClick={()=>setSelectedDate(todayId)} style={stylesLocal.btnSmall}>Today</button>}
                 </div>
               )}
             </div>
-            
             <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-              {view !== "person" && (
+              {view!=="person" && (
                 <>
                   <button onClick={async()=>{ if(view==="daily") await goToMonthly(); else setView("daily"); }} style={stylesLocal.btnSecondary}>
-                    {view==="daily" ? "Report" : "Daily"}
+                    {view==="daily"?"Report":"Daily"}
                   </button>
                   <button onClick={downloadMonthlyPDF} disabled={downloading} style={stylesLocal.btnPrimary}>
-                    <Download size={16} /> {downloading ? "..." : "Export PDF"}
+                    <Download size={16}/> {downloading?"...":"Export PDF"}
                   </button>
                 </>
               )}
               <div style={{padding:"6px 12px",background:COLORS.primaryDark,color:"#fff",borderRadius:8,fontWeight:700,fontSize:13,display:"flex",alignItems:"center",gap:6}}>
-                <Clock size={14} /> {currentTime}
+                <Clock size={14}/> {currentTime}
               </div>
             </div>
           </div>
 
-          {view === "daily" && !isToday && (
-            <div style={{
-              background: "#FEF3C7", border: `1px solid #FCD34D`, borderRadius: 8,
-              padding: 12, marginBottom: 20, display: "flex", alignItems: "center", gap: 12,
-              fontSize: 13, color: "#92400E", fontWeight: 600, flexWrap: "wrap", animation: "fadeIn 0.3s ease"
-            }}>
-              <AlertCircle size={20} color={COLORS.warning} />
+          {view==="daily" && !isToday && (
+            <div style={{background:"#FEF3C7",border:`1px solid #FCD34D`,borderRadius:8,padding:12,marginBottom:20,display:"flex",alignItems:"center",gap:12,fontSize:13,color:"#92400E",fontWeight:600,flexWrap:"wrap",animation:"fadeIn 0.3s ease"}}>
+              <AlertCircle size={20} color={COLORS.warning}/>
               <span>You are editing historical data for <b>{selectedDateLabel}</b>.</span>
             </div>
           )}
 
-          {/* Content */}
-          {view === "person" ? <PersonDetail/> : (
+          {/* Table */}
+          {view==="person" ? <PersonDetail/> : (
             <div style={stylesLocal.card}>
               <div style={{overflowX:"auto"}}>
-                <table style={{width:"100%",borderCollapse:"collapse",minWidth:900}}>
+                <table style={{width:"100%",borderCollapse:"collapse",minWidth:view==="daily"?1000:900}}>
                   <thead style={{background:COLORS.bgPage,position:"sticky",top:0,zIndex:10}}>
                     {view==="daily" ? (
                       <tr>
-                        <th style={stylesLocal.th}>Employee</th>
+                        <th style={{...stylesLocal.th,textAlign:"left"}}>Employee</th>
                         <th style={stylesLocal.th}>Scheduled In</th>
                         <th style={stylesLocal.th}>Scheduled Out</th>
                         <th style={stylesLocal.th}>Actual In</th>
-                        <th style={stylesLocal.th}>Mark</th>
+                        <th style={stylesLocal.th}>Status</th>
+                        <th style={stylesLocal.th}>
+                          {/* P / L / A labels in header */}
+                          <div style={{display:"flex",gap:12,justifyContent:"center"}}>
+                            {[
+                              {label:"P",color:COLORS.status.present.text,bg:COLORS.status.present.bg},
+                              {label:"L",color:COLORS.status.leave.text,  bg:COLORS.status.leave.bg},
+                              {label:"A",color:COLORS.status.absent.text,  bg:COLORS.status.absent.bg},
+                            ].map(h=>(
+                              <span key={h.label} style={{fontSize:10,fontWeight:800,color:h.color,background:h.bg,padding:"2px 6px",borderRadius:4,letterSpacing:"0.05em"}}>{h.label}</span>
+                            ))}
+                          </div>
+                        </th>
                         <th style={stylesLocal.th}>Edit</th>
                       </tr>
                     ) : (
@@ -809,30 +677,41 @@ const Attendance = ({ onNavigate }) => {
                     )}
                   </thead>
                   <tbody>
-                    {records.map(r => view === "daily" ? (
+                    {records.map(r => view==="daily" ? (
                       <tr key={r.id} style={{borderBottom:`1px solid ${COLORS.border}`,transition:"background 0.2s"}} onMouseEnter={e=>e.currentTarget.style.background=COLORS.bgPage} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+                        {/* Employee */}
                         <td style={stylesLocal.td}>
                           <div style={{display:"flex",alignItems:"center",gap:12}}>
                             <div style={{width:36,height:36,borderRadius:"50%",background:COLORS.primaryLight,color:COLORS.primary,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,fontSize:14}}>
                               {(r.name||"?")[0].toUpperCase()}
                             </div>
-                            <div><div style={{fontWeight:600,fontSize:14,color:COLORS.textMain}}>{r.name}</div><div style={{fontSize:11,color:COLORS.textMuted}}>{r.role}</div></div>
+                            <div>
+                              <div style={{fontWeight:600,fontSize:14,color:COLORS.textMain}}>{r.name}</div>
+                              <div style={{fontSize:11,color:COLORS.textMuted}}>{r.role}</div>
+                            </div>
                           </div>
                         </td>
-                        <td style={{...stylesLocal.td,textAlign:"center"}}><span style={{display:"inline-flex",padding:"2px 8px",borderRadius:4,fontSize:11,fontWeight:700,background:COLORS.status.present.bg,color:COLORS.status.present.text}}>{r.scheduledIn}</span></td>
-                        <td style={{...stylesLocal.td,textAlign:"center"}}><span style={{display:"inline-flex",padding:"2px 8px",borderRadius:4,fontSize:11,fontWeight:700,background:COLORS.status.late.bg,color:COLORS.status.late.text}}>{r.scheduledOut}</span></td>
+                        {/* Times */}
+                        <td style={{...stylesLocal.td,textAlign:"center"}}>
+                          <span style={{display:"inline-flex",padding:"2px 8px",borderRadius:4,fontSize:11,fontWeight:700,background:COLORS.status.present.bg,color:COLORS.status.present.text}}>{r.scheduledIn}</span>
+                        </td>
+                        <td style={{...stylesLocal.td,textAlign:"center"}}>
+                          <span style={{display:"inline-flex",padding:"2px 8px",borderRadius:4,fontSize:11,fontWeight:700,background:COLORS.status.late.bg,color:COLORS.status.late.text}}>{r.scheduledOut}</span>
+                        </td>
                         <td style={{...stylesLocal.td,textAlign:"center",fontFamily:"monospace",fontWeight:500}}>{r.checkIn||"—"}</td>
-                        <td style={stylesLocal.td}>
-                          <div style={{display:"flex",gap:4,justifyContent:"center"}}>
-                            <input type="checkbox" checked={r.status==="Present"||r.status==="Late"} onChange={()=>handleAttendance(r.id,r.scheduledIn,"Present")} style={{accentColor:COLORS.status.present.text,width:16,height:16,cursor:"pointer"}} title="Present"/>
-                            <input type="checkbox" checked={r.status==="Absent"} onChange={()=>handleAttendance(r.id,r.scheduledIn,"Absent")} style={{accentColor:COLORS.status.absent.text,width:16,height:16,cursor:"pointer"}} title="Absent"/>
-                            <input type="checkbox" checked={r.status==="Leave"} onChange={()=>handleAttendance(r.id,r.scheduledIn,"Leave")} style={{accentColor:COLORS.status.leave.text,width:16,height:16,cursor:"pointer"}} title="Leave"/>
-                          </div>
+                        {/* Status Badge */}
+                        <td style={{...stylesLocal.td,textAlign:"center"}}>
+                          <Badge status={r.status||"Pending"}/>
                         </td>
+                        {/* P / L / A checkboxes */}
+                        <td style={stylesLocal.td}>
+                          <MarkCell record={r} onMark={handleAttendance}/>
+                        </td>
+                        {/* Edit */}
                         <td style={stylesLocal.td}>
                           <div style={{display:"flex",gap:4,justifyContent:"center"}}>
-                            <button onClick={() => { setEditType('checkin'); setEditingEmp(r); }} style={stylesLocal.iconBtn}>In</button>
-                            <button onClick={() => { setEditType('checkout'); setEditingEmp(r); }} style={stylesLocal.iconBtn}>Out</button>
+                            <button onClick={()=>{ setEditType('checkin'); setEditingEmp(r); }} style={stylesLocal.iconBtn}>In</button>
+                            <button onClick={()=>{ setEditType('checkout'); setEditingEmp(r); }} style={stylesLocal.iconBtn}>Out</button>
                           </div>
                         </td>
                       </tr>
@@ -854,9 +733,7 @@ const Attendance = ({ onNavigate }) => {
                     ))}
                   </tbody>
                 </table>
-                {records.length === 0 && (
-                  <div style={{padding:40,textAlign:"center",color:COLORS.textMuted}}>No records found.</div>
-                )}
+                {records.length===0 && <div style={{padding:40,textAlign:"center",color:COLORS.textMuted}}>No records found.</div>}
               </div>
             </div>
           )}
@@ -864,18 +741,13 @@ const Attendance = ({ onNavigate }) => {
       </div>
 
       {editingEmp && (
-        <TimeEditModal
-          emp={editingEmp}
-          type={editType}
-          onSave={handleTimeSaved}
-          onClose={() => setEditingEmp(null)}
-        />
+        <TimeEditModal emp={editingEmp} type={editType} onSave={handleTimeSaved} onClose={()=>setEditingEmp(null)}/>
       )}
 
       <style>{`
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        input:focus, select:focus, textarea:focus { outline: none; border-color: ${COLORS.primary} !important; box-shadow: 0 0 0 2px ${COLORS.primaryLight} !important; }
+        input:focus, select:focus { outline: none; border-color: ${COLORS.primary} !important; box-shadow: 0 0 0 2px ${COLORS.primaryLight} !important; }
       `}</style>
     </div>
   );

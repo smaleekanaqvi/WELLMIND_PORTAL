@@ -1020,17 +1020,23 @@ const Dashboard = ({ onNavigate }) => {
     }, [inProgress]);
 
     const activityFeed = useMemo(() => {
-        const items = [];
-        completed.sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt)).slice(0, 4).forEach(p => {
-            let onTime = false;
-            if (p.completedAt && p.deadline) {
-                const { isOverdue } = getDateDifference(p.deadline);
-                onTime = !isOverdue;
-            }
+    const items = [];
+    const mk = getCurrentMonthKey();
+
+    // Sirf is month ki completed
+    const thisMonthActivity = completed.filter(p => 
+        p.completedAt && 
+        new Date(p.completedAt).toLocaleDateString('en-US', { year: 'numeric', month: '2-digit' }) === mk
+    );
+
+    thisMonthActivity
+        .sort((a, b) => new Date(b.completedAt) - new Date(a.completedAt))
+        .slice(0, 4)
+        .forEach(p => {
             items.push({ 
                 type: 'completed', 
-                dot: onTime ? 'green' : 'amber', 
-                text: <><strong>{p.personName}</strong> completed <strong>"{p.projectName}"</strong> {onTime ? <span style={{color:'#10B981', fontWeight:800}}>✓ on time</span> : <span style={{color:'#EF4444', fontWeight:800}}>⚠️ late</span>}</>, 
+                dot: 'green', 
+                text: <><strong>{p.personName}</strong> completed <strong>"{p.projectName}"</strong></>, 
                 time: p.completedAt 
             });
         });

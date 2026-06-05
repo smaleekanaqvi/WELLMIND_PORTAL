@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import heroImage from '../assets/hero.png'; 
 
 // ============================================================
 // WellMind Brand Palette
@@ -66,9 +67,7 @@ const Signup = ({ onNavigate }) => {
       <div style={styles.loginCard}>
         <div style={styles.headerSection}>
           <div style={styles.logoIcon}>
-           <img 
-    src="./hero.png" 
-    alt="WellMind Data Solutions" 
+          <img src={heroImage} alt="WellMind Data Solutions"
     style={{ 
         height: '40px', 
         width: 'auto', 
